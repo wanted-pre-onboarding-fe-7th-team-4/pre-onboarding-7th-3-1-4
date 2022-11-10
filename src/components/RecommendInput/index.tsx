@@ -3,9 +3,10 @@ import React, { useEffect } from "react";
 import { useInput } from "@/lib/hooks/useInput";
 import RecommendBox from "./RecommendIBox";
 import { useSickList } from "@/lib/recoil/hooks";
-import { useDebounce } from "@/lib/hooks/useDebounce";
+
 import { RecommendInputContainer } from "./styles";
-import useKeyControll from "@/lib/hooks/useKeyControll";
+import useKeyControl from "@/lib/hooks/useKeyControl";
+import useDebounce from "@/lib/hooks/useDebounce";
 
 const RecommendInput = () => {
   const {
@@ -16,29 +17,14 @@ const RecommendInput = () => {
     onKeyDown,
     onFocusInput,
     onBlurInput
-  } = useKeyControll();
+  } = useKeyControl();
   const { value, setValue, onChange, inputRef } = useInput();
-  const debounce = useDebounce();
-  const { sickData, stateText } = useSickList(value);
-
-  const onInput = (e: React.FormEvent<HTMLFormElement>) => {
-    let newKeyword = value;
-    if (e.target instanceof HTMLInputElement) {
-      if (newKeyword === e.target.value) return;
-      newKeyword = e.target.value.trim();
-    }
-    debounce(() => {
-      if (e.target instanceof HTMLInputElement) {
-        setValue(newKeyword);
-        setFocusIndex(-1);
-      }
-    }, 100);
-  };
+  const debounceValue = useDebounce(value, 200);
+  const { sickData, stateText } = useSickList(debounceValue);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setShowRecommendBox(false);
-    setValue("");
     inputRef.current?.blur();
   };
 
@@ -48,7 +34,7 @@ const RecommendInput = () => {
   }, [focusIndex, setValue, sickData]);
 
   return (
-    <RecommendInputContainer onSubmit={onSubmit} onInput={onInput}>
+    <RecommendInputContainer onSubmit={onSubmit}>
       <Input
         className="input"
         onFocus={onFocusInput}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Sick } from "typings/db";
 
-const useKeyControll = () => {
+const useKeyControl = () => {
   const [showRecommendBox, setShowRecommendBox] = useState(false);
   const [focusIndex, setFocusIndex] = useState(-1);
 
@@ -44,4 +44,4 @@ const useKeyControll = () => {
   };
 };
 
-export default useKeyControll;
+export default useKeyControl;
