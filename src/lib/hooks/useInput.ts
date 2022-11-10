@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import useDebounce from "./useDebounce";
 
 export const useInput = (initialValue = "") => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -8,5 +9,7 @@ export const useInput = (initialValue = "") => {
     setValue(e.currentTarget.value);
   };
 
-  return { value, setValue, onChange, inputRef };
+  const debounceValue = useDebounce(value, 200);
+
+  return { value, setValue, onChange, inputRef, debounceValue };
 };
