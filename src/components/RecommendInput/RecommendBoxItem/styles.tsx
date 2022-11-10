@@ -19,7 +19,7 @@ export const RecommendItemContainer = styled.li<RecommendItemStyleProps>`
   &:hover {
     background-color: ${({ theme }) => theme.color.grey_100};
   }
-  a {
+  .highlightContainer {
     padding: 20px 0 20px 12px;
     display: block;
     flex: 1;
