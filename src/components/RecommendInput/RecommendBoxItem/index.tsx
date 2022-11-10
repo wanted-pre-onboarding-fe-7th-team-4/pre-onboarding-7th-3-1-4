@@ -13,9 +13,7 @@ interface RecommendItemProps {
 
 const RecommendItem = forwardRef<HTMLLIElement, RecommendItemProps>(
   ({ keyword, value, active, index }, ref) => {
-    const [highlightedNode] = useState<React.ReactNode>(
-      highlightText(value, keyword)
-    );
+    const highlightedNode = highlightText(value, keyword);
 
     return (
       <RecommendItemContainer active={active} ref={ref} data-index={index}>
