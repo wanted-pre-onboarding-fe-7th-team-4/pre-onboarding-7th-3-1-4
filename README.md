@@ -102,7 +102,6 @@ export default useDebounce;
 debounce(func, delay);
 ```
 
-- 캐시처리
 
 ## 2. 검색어 추천 및 키보드 이동
 
@@ -118,7 +117,7 @@ debounce(func, delay);
 
 ![ezgif com-gif-maker (2)](https://user-images.githubusercontent.com/44064122/201107234-6ff5a4b0-7cc7-4cb6-b314-d3ef6c85a9ac.gif)
 
-4. 검색어를 탐색하다가 검색을 하고 싶다면 앤터키를 누르세요. 그러면 쿼리 스트링이 URL에 들어갑니다.  
+4. 검색어를 탐색하다가 검색을 하고 싶다면 엔터키를 누르세요. 그러면 쿼리 스트링이 URL에 들어갑니다.  
 
 ![ezgif com-gif-maker (3)](https://user-images.githubusercontent.com/44064122/201107253-eb172e2a-c81f-4552-ad2a-2f9cd81c9685.gif)
 
@@ -154,7 +153,7 @@ debounce(func, delay);
 
 ## 4. 데이터 캐싱 방법
 
-- Map instance를 가진 CacheService class를 구현해 Cahce data를 관리했습니다.
+- Map instance를 가진 CacheService class를 구현해 Cache data를 관리했습니다.
 
   ```jsx
   // CacheService.ts
