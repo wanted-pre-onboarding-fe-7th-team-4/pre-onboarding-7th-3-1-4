@@ -1,4 +1,4 @@
-import React, { memo, forwardRef, useState } from "react";
+import React, { memo, forwardRef } from "react";
 
 import { RecommendItemContainer } from "./styles";
 import { ReactComponent as Search } from "@/components/assets/search.svg";
@@ -13,14 +13,12 @@ interface RecommendItemProps {
 
 const RecommendItem = forwardRef<HTMLLIElement, RecommendItemProps>(
   ({ keyword, value, active, index }, ref) => {
-    const [highlightedNode] = useState<React.ReactNode>(
-      highlightText(value, keyword)
-    );
-
     return (
       <RecommendItemContainer active={active} ref={ref} data-index={index}>
         <Search className="icon" />
-        <div className="highlightContainer">{highlightedNode}</div>
+        <div className="highlightContainer">
+          {highlightText(value, keyword)}
+        </div>
       </RecommendItemContainer>
     );
   }
