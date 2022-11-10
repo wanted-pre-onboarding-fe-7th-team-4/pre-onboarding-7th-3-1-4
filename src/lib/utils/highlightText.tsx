@@ -6,7 +6,13 @@ export const highlightText = (
   return (
     <>
       {text.split(regex).map((word, idx) => {
-        return word === inputValue ? <strong key={idx}>{word}</strong> : word;
+        return word === inputValue ? (
+          <span className="highlight" key={idx}>
+            {word}
+          </span>
+        ) : (
+          word
+        );
       })}
     </>
   );
