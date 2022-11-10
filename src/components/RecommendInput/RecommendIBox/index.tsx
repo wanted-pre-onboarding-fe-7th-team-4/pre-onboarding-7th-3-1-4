@@ -46,7 +46,7 @@ const RecommendBox = ({
         });
       }
     }
-  }, [focusIndex]);
+  }, [focusIndex, itemRef.current]);
 
   if (!show) return null;
   return (

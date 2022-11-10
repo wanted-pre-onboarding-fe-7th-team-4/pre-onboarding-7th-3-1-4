@@ -1,4 +1,4 @@
-import { APIServiceImpl } from "./../api/API";
+import { APIServiceImpl } from "@/lib/api/API";
 import { CacheService } from "./CacheService";
 
 interface SearchService<T> {
@@ -12,13 +12,11 @@ export class SearchServiceImpl<T> implements SearchService<T> {
   constructor(api: APIServiceImpl) {
     this.api = api;
     this.cache = new CacheService<string, T>();
-    // this.cache = new Map<string, T>();
   }
 
   async search(query: string) {
     if (this.cache.hasCache(query))
       return this.cache.getCache(query) || ([] as T);
-    console.info(query);
     const { data } = await this.api.fetch<T>(`sick?sickNm_like=${query}`);
     this.cache.setCache(query, data);
     return data;

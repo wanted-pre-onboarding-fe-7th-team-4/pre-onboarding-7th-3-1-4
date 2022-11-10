@@ -1,4 +1,4 @@
-import { APIServiceImpl } from "@/api/API";
+import { APIServiceImpl } from "@/lib/api/API";
 import { SearchServiceImpl } from "@/service/SearhService";
 import { useState } from "react";
 import { Sick } from "typings/db";
@@ -9,24 +9,27 @@ const api = new APIServiceImpl("http://localhost:4000/");
 const searchService = new SearchServiceImpl<Sick[]>(api);
 
 export const useSearch = () => {
-  const [state, setState] = useState<StateType>("hasValue");
+  const [status, setStatus] = useState<StateType>("hasValue");
   const [contents, setContents] = useState<Sick[]>([]);
 
   const search = async (keyword: string) => {
     if (!keyword.trim()) {
-      setState("hasValue");
+      setStatus("hasValue");
       setContents([] as Sick[]);
       return;
     }
     try {
-      setState("loading");
+      setStatus("loading");
       const data = await searchService.search(keyword);
-      setState("hasValue");
-      setContents(data);
+      const sortedData = data.sort((a, b) =>
+        a?.sickNm.localeCompare(b?.sickNm)
+      );
+      setStatus("hasValue");
+      setContents(sortedData);
     } catch (error) {
-      setState("hasError");
+      setStatus("hasError");
     }
   };
 
-  return { state, contents, search };
+  return { status, sickData: contents, search };
 };
