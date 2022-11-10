@@ -2,10 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
-import GlobalStyle from "./styles/GlobalStyle";
+import GlobalStyle from "./lib/styles/GlobalStyle";
 import { ThemeProvider } from "styled-components";
-import { theme } from "./styles/theme";
-
+import { theme } from "./lib/styles/theme";
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );

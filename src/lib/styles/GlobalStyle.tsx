@@ -1,5 +1,5 @@
+import "./SpoqaHansSansNeo";
 import { createGlobalStyle } from "styled-components";
-import SpoqaHansSansNeoFont from "./SpoqaHansSansNeo";
 import Reset from "./Reset";
 
 const GlobalStyle = createGlobalStyle`

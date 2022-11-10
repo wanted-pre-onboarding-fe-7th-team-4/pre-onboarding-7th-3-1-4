@@ -1,6 +1,6 @@
 import React from "react";
 import { InputContainer } from "./styles";
-import { ReactComponent as Search } from "@/assets/search.svg";
+import { ReactComponent as Search } from "@/components/assets/search.svg";
 
 interface InputProps
   extends React.DetailedHTMLProps<

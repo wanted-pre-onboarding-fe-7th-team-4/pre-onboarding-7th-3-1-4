@@ -1,9 +1,16 @@
 import Input from "../Input";
-import React, { useState, useRef, useEffect } from "react";
-import { useInput } from "@/hooks/useInput";
+import React, { useEffect } from "react";
+import { useInput } from "@/lib/hooks/useInput";
 import RecommendBox from "./RecommendIBox";
+<<<<<<< HEAD
 import { useDebounce } from "@/hooks/useDebounce";
+=======
+import { useSickList } from "@/lib/recoil/hooks";
+
+>>>>>>> 40551f8815526569f17912ea0c50f82162bc6cd2
 import { RecommendInputContainer } from "./styles";
+import useKeyControl from "@/lib/hooks/useKeyControl";
+import { useNavigate } from "react-router-dom";
 
 // TODO: 추천 검색어 받아오는 부분
 // import { useSickList } from "@/recoil/hooks";
@@ -12,6 +19,7 @@ import { Sick } from "typings/db";
 import { useSearch } from "@/pages/Main/hooks/useSearch";
 
 const RecommendInput = () => {
+<<<<<<< HEAD
   const [showRecommendBox, setShowRecommendBox] = useState(false);
   const [focusIndex, setFocusIndex] = useState(-1);
   const [value, setValue, onChange] = useInput();
@@ -67,32 +75,50 @@ const RecommendInput = () => {
       }
     }, 100);
   };
+=======
+  const navigate = useNavigate();
+  const {
+    showRecommendBox,
+    setShowRecommendBox,
+    focusIndex,
+    setFocusIndex,
+    onKeyDown,
+    onFocusInput,
+    onBlurInput
+  } = useKeyControl();
+  const { value, setValue, onChange, inputRef, debounceValue } = useInput();
+  const { sickData, stateText, getData } = useSickList();
+>>>>>>> 40551f8815526569f17912ea0c50f82162bc6cd2
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setShowRecommendBox(false);
-    setKeyword("");
+    navigate(`/sick?q=${debounceValue}`);
     inputRef.current?.blur();
   };
 
-  const onFocusInput = () => {
-    setFocusIndex(-1);
-    setKeyword(value.trim());
-    setShowRecommendBox(true);
-  };
+  useEffect(() => {
+    if (sickData && focusIndex >= 0) {
+      setValue(sickData[focusIndex].sickNm);
+    }
+  }, [focusIndex, setValue, sickData]);
 
-  const onBlurInput = () => setShowRecommendBox(false);
+  useEffect(() => {
+    if (debounceValue && focusIndex === -1) {
+      getData(debounceValue);
+    }
+  }, [debounceValue, focusIndex]);
 
   return (
-    <RecommendInputContainer onSubmit={onSubmit} onInput={onInput}>
+    <RecommendInputContainer onSubmit={onSubmit}>
       <Input
         className="input"
         onFocus={onFocusInput}
         onBlur={onBlurInput}
-        onKeyDown={onKeyDown}
+        onKeyDown={onKeyDown(sickData ? sickData : [])}
         ref={inputRef}
         value={value}
-        onChange={onChange}
+        onInput={onChange}
         placeholder="질환명을 입력해 주세요."
         buttonText="검색"
       />
@@ -102,10 +128,15 @@ const RecommendInput = () => {
           inputRef.current?.blur();
         }}
         show={showRecommendBox}
+<<<<<<< HEAD
         data={contents}
         status={state}
+=======
+        data={sickData ? sickData : []}
+        alt={stateText}
+>>>>>>> 40551f8815526569f17912ea0c50f82162bc6cd2
         focusIndex={focusIndex}
-        keyword={keyword}
+        keyword={value}
       />
     </RecommendInputContainer>
   );
