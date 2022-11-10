@@ -2,11 +2,11 @@ import Input from "../Input";
 import React, { useEffect } from "react";
 import { useInput } from "@/lib/hooks/useInput";
 import RecommendBox from "./RecommendIBox";
-import { useSickList } from "@/lib/recoil/hooks";
-
 import { RecommendInputContainer } from "./styles";
 import useKeyControl from "@/lib/hooks/useKeyControl";
 import { useNavigate } from "react-router-dom";
+
+import { useSearch } from "@/pages/Main/hooks/useSearch";
 
 const RecommendInput = () => {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ const RecommendInput = () => {
     onBlurInput
   } = useKeyControl();
   const { value, setValue, onChange, inputRef, debounceValue } = useInput();
-  const { sickData, stateText, getData } = useSickList();
+  const { sickData, search, status } = useSearch();
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,7 +37,7 @@ const RecommendInput = () => {
 
   useEffect(() => {
     if (debounceValue && focusIndex === -1) {
-      getData(debounceValue);
+      search(debounceValue);
     }
   }, [debounceValue, focusIndex]);
 
@@ -61,7 +61,7 @@ const RecommendInput = () => {
         }}
         show={showRecommendBox}
         data={sickData ? sickData : []}
-        alt={stateText}
+        status={status}
         focusIndex={focusIndex}
         keyword={value}
       />
