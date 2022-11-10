@@ -16,7 +16,7 @@ const RecommendInput = () => {
     onKeyDown,
     onFocusInput,
     onBlurInput
-  } = ≈();
+  } = useKeyControll();
   const { value, setValue, onChange, inputRef } = useInput();
   const debounce = useDebounce();
   const { sickData, stateText } = useSickList(value);
