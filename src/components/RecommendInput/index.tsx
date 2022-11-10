@@ -5,7 +5,8 @@ import RecommendBox from "./RecommendIBox";
 import { useSickList } from "@/lib/recoil/hooks";
 
 import { RecommendInputContainer } from "./styles";
-import useKeyControll from "@/lib/hooks/useKeyControll";
+import useKeyControl from "@/lib/hooks/useKeyControl";
+import useDebounce from "@/lib/hooks/useDebounce";
 
 const RecommendInput = () => {
   const {
@@ -16,14 +17,14 @@ const RecommendInput = () => {
     onKeyDown,
     onFocusInput,
     onBlurInput
-  } = useKeyControll();
+  } = useKeyControl();
   const { value, setValue, onChange, inputRef } = useInput();
-  const { sickData, stateText } = useSickList(value);
+  const debounceValue = useDebounce(value, 200);
+  const { sickData, stateText } = useSickList(debounceValue);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setShowRecommendBox(false);
-
     inputRef.current?.blur();
   };
 
