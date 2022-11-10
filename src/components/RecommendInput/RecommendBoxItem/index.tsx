@@ -13,12 +13,12 @@ interface RecommendItemProps {
 
 const RecommendItem = forwardRef<HTMLLIElement, RecommendItemProps>(
   ({ keyword, value, active, index }, ref) => {
+    const highlightedNode = highlightText(value, keyword);
+
     return (
       <RecommendItemContainer active={active} ref={ref} data-index={index}>
         <Search className="icon" />
-        <div className="highlightContainer">
-          {highlightText(value, keyword)}
-        </div>
+        <div className="highlightContainer">{highlightedNode}</div>
       </RecommendItemContainer>
     );
   }

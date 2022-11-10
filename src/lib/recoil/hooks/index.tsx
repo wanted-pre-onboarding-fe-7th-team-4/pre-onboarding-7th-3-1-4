@@ -1,9 +1,7 @@
 import { api } from "@/lib/api";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { useState } from "react";
-import { useRecoilValueLoadable } from "recoil";
 import { Sick } from "typings/db";
-import { getSickList } from "../selector/sickSelector";
 
 export const useSickList = () => {
   const [data, setData] = useState<Sick[]>();
