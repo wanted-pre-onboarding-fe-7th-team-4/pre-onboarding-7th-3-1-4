@@ -1,5 +1,5 @@
 import React, { memo, forwardRef, useState } from "react";
-import { Link } from "react-router-dom";
+
 import { RecommendItemContainer } from "./styles";
 import { ReactComponent as Search } from "@/components/assets/search.svg";
 import { highlightText } from "@/lib/utils/highlightText";
@@ -20,7 +20,7 @@ const RecommendItem = forwardRef<HTMLLIElement, RecommendItemProps>(
     return (
       <RecommendItemContainer active={active} ref={ref} data-index={index}>
         <Search className="icon" />
-        <Link to={"/"}>{highlightedNode}</Link>
+        <div className="highlightContainer">{highlightedNode}</div>
       </RecommendItemContainer>
     );
   }
