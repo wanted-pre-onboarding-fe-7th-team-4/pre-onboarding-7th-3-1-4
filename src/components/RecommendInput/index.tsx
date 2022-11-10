@@ -6,9 +6,10 @@ import { useSickList } from "@/lib/recoil/hooks";
 
 import { RecommendInputContainer } from "./styles";
 import useKeyControl from "@/lib/hooks/useKeyControl";
-import useDebounce from "@/lib/hooks/useDebounce";
+import { useNavigate } from "react-router-dom";
 
 const RecommendInput = () => {
+  const navigate = useNavigate();
   const {
     showRecommendBox,
     setShowRecommendBox,
@@ -18,20 +19,27 @@ const RecommendInput = () => {
     onFocusInput,
     onBlurInput
   } = useKeyControl();
-  const { value, setValue, onChange, inputRef } = useInput();
-  const debounceValue = useDebounce(value, 200);
-  const { sickData, stateText } = useSickList(debounceValue);
+  const { value, setValue, onChange, inputRef, debounceValue } = useInput();
+  const { sickData, stateText, getData } = useSickList();
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setShowRecommendBox(false);
+    navigate(`/sick?q=${debounceValue}`);
     inputRef.current?.blur();
   };
 
   useEffect(() => {
-    if (sickData.length && focusIndex >= 0)
+    if (sickData && focusIndex >= 0) {
       setValue(sickData[focusIndex].sickNm);
+    }
   }, [focusIndex, setValue, sickData]);
+
+  useEffect(() => {
+    if (debounceValue && focusIndex === -1) {
+      getData(debounceValue);
+    }
+  }, [debounceValue, focusIndex]);
 
   return (
     <RecommendInputContainer onSubmit={onSubmit}>
@@ -39,10 +47,10 @@ const RecommendInput = () => {
         className="input"
         onFocus={onFocusInput}
         onBlur={onBlurInput}
-        onKeyDown={onKeyDown(sickData)}
+        onKeyDown={onKeyDown(sickData ? sickData : [])}
         ref={inputRef}
         value={value}
-        onChange={onChange}
+        onInput={onChange}
         placeholder="질환명을 입력해 주세요."
         buttonText="검색"
       />
@@ -52,7 +60,7 @@ const RecommendInput = () => {
           inputRef.current?.blur();
         }}
         show={showRecommendBox}
-        data={sickData}
+        data={sickData ? sickData : []}
         alt={stateText}
         focusIndex={focusIndex}
         keyword={value}

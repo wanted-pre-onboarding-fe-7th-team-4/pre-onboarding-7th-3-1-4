@@ -1,4 +1,4 @@
-import React, { memo, forwardRef, useState } from "react";
+import React, { memo, forwardRef } from "react";
 
 import { RecommendItemContainer } from "./styles";
 import { ReactComponent as Search } from "@/components/assets/search.svg";

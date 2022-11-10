@@ -5,11 +5,11 @@ const useKeyControl = () => {
   const [showRecommendBox, setShowRecommendBox] = useState(false);
   const [focusIndex, setFocusIndex] = useState(-1);
 
-  const handleIncreseCount = (dataLength: number) => (pre: number) => {
+  const handleIncreaseCount = (dataLength: number) => (pre: number) => {
     return (pre === -1 ? pre + dataLength : pre + 1) % dataLength;
   };
 
-  const handleDecreseCount = (dataLength: number) => (pre: number) => {
+  const handleDecreaseCount = (dataLength: number) => (pre: number) => {
     return ((pre < 0 ? 0 : pre - 1) + dataLength) % dataLength;
   };
 
@@ -18,11 +18,11 @@ const useKeyControl = () => {
       if (!sickData.length) return;
 
       if (e.key === "ArrowDown") {
-        setFocusIndex(handleIncreseCount(sickData.length));
+        setFocusIndex(handleIncreaseCount(sickData.length));
       }
 
       if (e.key === "ArrowUp") {
-        setFocusIndex(handleDecreseCount(sickData.length));
+        setFocusIndex(handleDecreaseCount(sickData.length));
       }
     };
 
