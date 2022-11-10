@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sick } from "typings/db";
+import { Sick } from "@/lib/typings/db";
 
 const useKeyControl = () => {
   const [showRecommendBox, setShowRecommendBox] = useState(false);

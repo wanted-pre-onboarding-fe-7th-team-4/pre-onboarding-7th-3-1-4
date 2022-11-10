@@ -1,4 +1,3 @@
-import "./SpoqaHansSansNeo";
 import { createGlobalStyle } from "styled-components";
 import Reset from "./Reset";
 

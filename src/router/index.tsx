@@ -1,4 +1,4 @@
-import Layout from "@/layouts";
+import Layout from "@/components/layouts";
 import Main from "@/pages/Main";
 import { Routes, Route } from "react-router-dom";
 

@@ -1,9 +1,9 @@
-import { Sick } from "typings/db";
+import { Sick } from "@/lib/typings/db";
 import RecommendBoxItem from "../RecommendBoxItem";
 import { RecommendAltContainer, RecommendBoxContainer } from "./styles";
 import React, { useRef, useEffect } from "react";
-import { StateType } from "@/pages/Main/hooks/useSearch";
-import { useHandleStatus } from "@/hooks/useHandleStatus";
+import { StateType } from "@/lib/hooks/useSearch";
+import { useHandleStatus } from "@/lib/hooks/useHandleStatus";
 
 export interface RecommendBoxProps {
   data: Sick[];

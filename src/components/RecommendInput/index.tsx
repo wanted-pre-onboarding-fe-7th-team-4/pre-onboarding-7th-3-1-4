@@ -6,7 +6,7 @@ import { RecommendInputContainer } from "./styles";
 import useKeyControl from "@/lib/hooks/useKeyControl";
 import { useNavigate } from "react-router-dom";
 
-import { useSearch } from "@/pages/Main/hooks/useSearch";
+import { useSearch } from "@/lib/hooks/useSearch";
 
 const RecommendInput = () => {
   const navigate = useNavigate();
