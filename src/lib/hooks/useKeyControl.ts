@@ -6,11 +6,11 @@ const useKeyControl = () => {
   const [focusIndex, setFocusIndex] = useState(-1);
 
   const handleIncreaseCount = (dataLength: number) => (pre: number) => {
-    return (pre === -1 ? pre + dataLength : pre + 1) % dataLength;
+    return pre < 0 ? 0 : (pre + 1) % dataLength;
   };
 
   const handleDecreaseCount = (dataLength: number) => (pre: number) => {
-    return ((pre < 0 ? 0 : pre - 1) + dataLength) % dataLength;
+    return ((pre < 0 ? 0 : pre) - 1 + dataLength) % dataLength;
   };
 
   const onKeyDown =
@@ -23,6 +23,10 @@ const useKeyControl = () => {
 
       if (e.key === "ArrowUp") {
         setFocusIndex(handleDecreaseCount(sickData.length));
+      }
+
+      if (e.key === "Escape") {
+        setFocusIndex(-1);
       }
     };
 
