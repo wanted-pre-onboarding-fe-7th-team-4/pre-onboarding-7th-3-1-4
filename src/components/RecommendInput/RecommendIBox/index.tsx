@@ -2,12 +2,14 @@ import { Sick } from "typings/db";
 import RecommendBoxItem from "../RecommendBoxItem";
 import { RecommendAltContainer, RecommendBoxContainer } from "./styles";
 import React, { useRef, useEffect } from "react";
+import { StateType } from "@/pages/Main/hooks/useSearch";
+import { useHandleStatus } from "@/hooks/useHandleStatus";
 
 export interface RecommendBoxProps {
   data: Sick[];
   focusIndex?: number;
   keyword: string;
-  alt: string;
+  status: StateType;
   show: boolean;
   onChangeFocusIndex?: (index: number) => void;
 }
@@ -16,11 +18,12 @@ const RecommendBox = ({
   data,
   focusIndex,
   keyword,
-  alt,
+  status,
   show,
   onChangeFocusIndex
 }: RecommendBoxProps) => {
   const itemRef = useRef<HTMLLIElement>(null);
+  const statusText = useHandleStatus(status);
 
   const onClick = (e: React.MouseEvent<HTMLUListElement, MouseEvent>) => {
     e.preventDefault();
@@ -64,7 +67,7 @@ const RecommendBox = ({
           />
         ))
       ) : (
-        <RecommendAltContainer>{alt}</RecommendAltContainer>
+        <RecommendAltContainer>{statusText}</RecommendAltContainer>
       )}
     </RecommendBoxContainer>
   );
