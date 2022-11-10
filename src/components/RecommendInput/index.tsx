@@ -1,9 +1,9 @@
 import Input from "../Input";
 import React, { useState, useRef, useEffect } from "react";
-import { useInput } from "@/hooks/useInput";
+import { useInput } from "@/lib/hooks/useInput";
 import RecommendBox from "./RecommendIBox";
-import { useSickList } from "@/recoil/hooks";
-import { useDebounce } from "@/hooks/useDebounce";
+import { useSickList } from "@/lib/recoil/hooks";
+import { useDebounce } from "@/lib/hooks/useDebounce";
 import { RecommendInputContainer } from "./styles";
 
 const RecommendInput = () => {

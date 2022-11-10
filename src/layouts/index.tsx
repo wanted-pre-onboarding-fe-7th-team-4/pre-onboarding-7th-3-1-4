@@ -1,5 +1,5 @@
 import { Link, Outlet } from "react-router-dom";
-import { ReactComponent as Logo } from "@/assets/logo.svg";
+import { ReactComponent as Logo } from "@/components/assets/logo.svg";
 import styled from "styled-components";
 
 const Layout = () => {

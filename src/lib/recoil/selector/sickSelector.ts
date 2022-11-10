@@ -1,4 +1,4 @@
-import { api } from "@/api";
+import { api } from "@/lib/api";
 import { selectorFamily } from "recoil";
 import { Sick } from "typings/db";
 import { sickListCacheAtom } from "../atom/sickAtom";
