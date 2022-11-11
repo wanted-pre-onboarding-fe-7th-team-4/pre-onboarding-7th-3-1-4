@@ -6,7 +6,9 @@ export const highlightText = (
   return (
     <>
       {text.split(regex).map((word, idx) => {
-        return word === inputValue ? (
+        const isWordcorrect =
+          word.toLocaleLowerCase() === inputValue.toLocaleLowerCase();
+        return isWordcorrect ? (
           <span className="highlight" key={idx}>
             {word}
           </span>

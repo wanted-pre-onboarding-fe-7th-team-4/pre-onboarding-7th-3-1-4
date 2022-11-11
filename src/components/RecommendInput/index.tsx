@@ -19,6 +19,7 @@ const RecommendInput = () => {
     onFocusInput,
     onBlurInput
   } = useKeyControl();
+
   const { value, setValue, onChange, inputRef, debounceValue } = useInput();
   const { sickData, search, status } = useSearch();
 
@@ -50,7 +51,7 @@ const RecommendInput = () => {
         onKeyDown={onKeyDown(sickData ? sickData : [])}
         ref={inputRef}
         value={value}
-        onInput={onChange}
+        onChange={onChange}
         placeholder="질환명을 입력해 주세요."
         buttonText="검색"
       />

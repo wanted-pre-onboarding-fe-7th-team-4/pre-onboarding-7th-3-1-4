@@ -27,13 +27,11 @@ const RecommendBox = ({
 
   const onClick = (e: React.MouseEvent<HTMLUListElement, MouseEvent>) => {
     e.preventDefault();
-    const elem = e.target as Element;
-    if (elem) {
-      const target = elem.closest("li");
-      if (target) {
-        const dataSetIdx = target.dataset.index;
-        if (dataSetIdx !== undefined) onChangeFocusIndex?.(Number(dataSetIdx));
-      }
+    if (!(e.target instanceof Element)) return;
+    const elem = e.target.closest("li");
+    if (elem instanceof HTMLLIElement) {
+      const dataSetIdx = elem.dataset.index;
+      if (dataSetIdx !== undefined) onChangeFocusIndex?.(Number(dataSetIdx));
     }
   };
 
@@ -41,7 +39,6 @@ const RecommendBox = ({
     if (focusIndex !== undefined && focusIndex >= 0) {
       if (itemRef.current) {
         itemRef.current.scrollIntoView({
-          behavior: "smooth",
           block: "center"
         });
       }

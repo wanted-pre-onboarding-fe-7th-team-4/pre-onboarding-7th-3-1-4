@@ -7,6 +7,7 @@ export const useInput = (initialValue = "") => {
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.currentTarget.value);
+    console.log("onchange실행");
   };
 
   const debounceValue = useDebounce(value, 200);
