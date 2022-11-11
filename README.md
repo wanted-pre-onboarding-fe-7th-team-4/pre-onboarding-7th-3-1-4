@@ -10,7 +10,7 @@
 | 박라영       | https://github.com/rieulp/clinical-trials-input-clone                                                   |
 | 박호준       | https://github.com/ganeodolu/wanted-pre-onboarding-course/tree/main/pre-onboarding-7th-3-1-4-search-bar |
 | 이슬         | https://github.com/seul-dev/pre-onboarding-7th-3-1-4                                                    |
-| 조윤정       | https://github.com/yunjjeongjo/pre-onboarding-7th-2-2-4                                                 |
+| 조윤정       | https://github.com/yunjjeongjo/pre-onboarding-7th-3-1-4                                                 |
 | 최지영       | https://github.com/ohtmm/search_auto-recommend                                                          |
 
 # 환경 설정 및 실행 방법
