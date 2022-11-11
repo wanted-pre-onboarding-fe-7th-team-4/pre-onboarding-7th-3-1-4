@@ -102,26 +102,23 @@ export default useDebounce;
 debounce(func, delay);
 ```
 
-
 ## 2. 검색어 추천 및 키보드 이동
 
-1. 검색어 창에 검색어를 입력합니다.  
+1. 검색어 창에 검색어를 입력합니다.
 
 ![ezgif com-gif-maker](https://user-images.githubusercontent.com/44064122/201107196-1cb35dcd-3603-481a-b353-77374f169554.gif)
 
-2. 검색어 추천 목록이 나오면 키보드 방향키중 위, 아래 키로 탐색할 수 있습니다.  
+2. 검색어 추천 목록이 나오면 키보드 방향키중 위, 아래 키로 탐색할 수 있습니다.
 
 ![ezgif com-gif-maker (1)](https://user-images.githubusercontent.com/44064122/201107216-68834e46-3c28-485a-8014-842d49f9cac4.gif)
 
-3. 검색어를 다시 입력하고 싶다면 ESC 키를 누르세요.  
+3. 검색어를 다시 입력하고 싶다면 ESC 키를 누르세요.
 
 ![ezgif com-gif-maker (2)](https://user-images.githubusercontent.com/44064122/201107234-6ff5a4b0-7cc7-4cb6-b314-d3ef6c85a9ac.gif)
 
-4. 검색어를 탐색하다가 검색을 하고 싶다면 엔터키를 누르세요. 그러면 쿼리 스트링이 URL에 들어갑니다.  
+4. 검색어를 탐색하다가 검색을 하고 싶다면 엔터키를 누르세요. 그러면 쿼리 스트링이 URL에 들어갑니다.
 
 ![ezgif com-gif-maker (3)](https://user-images.githubusercontent.com/44064122/201107253-eb172e2a-c81f-4552-ad2a-2f9cd81c9685.gif)
-
-
 
 ## 3. 검색 키워드 볼드 처리
 
