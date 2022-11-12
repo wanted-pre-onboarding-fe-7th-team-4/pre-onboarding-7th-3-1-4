@@ -22,7 +22,7 @@ export class SearchServiceImpl<T> implements SearchService<T> {
 
   async search(query: string) {
     if (this.cache.hasCache(query)) {
-      this.cache.timeCheck(this.fetchData(query), query);
+      this.cache.cacheTimeOut(this.fetchData(query), query);
       return this.cache.getCache(query) || ([] as T);
     }
     const { data } = await this.api.fetch<T>(`sick?sickNm_like=${query}`);

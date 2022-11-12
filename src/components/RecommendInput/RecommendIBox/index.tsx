@@ -3,7 +3,6 @@ import RecommendBoxItem from "../RecommendBoxItem";
 import { RecommendAltContainer, RecommendBoxContainer } from "./styles";
 import React, { useRef, useEffect } from "react";
 import { StateType } from "@/lib/hooks/useSearch";
-import { useHandleStatus } from "@/lib/hooks/useHandleStatus";
 
 export interface RecommendBoxProps {
   data: Sick[];
@@ -23,7 +22,14 @@ const RecommendBox = ({
   onChangeFocusIndex
 }: RecommendBoxProps) => {
   const itemRef = useRef<HTMLLIElement>(null);
-  const statusText = useHandleStatus(status);
+
+  const HandleStatus = (state: string) => {
+    if (state === "hasError") return "검색 실패😥 다시 시도해주세요.";
+    else if (state === "loading") return "로딩중 입니다⏳";
+    else return "데이터가 없습니다.";
+  };
+
+  const statusText = HandleStatus(status);
 
   const onClick = (e: React.MouseEvent<HTMLUListElement, MouseEvent>) => {
     e.preventDefault();
