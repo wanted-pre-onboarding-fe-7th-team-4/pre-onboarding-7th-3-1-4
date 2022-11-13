@@ -231,75 +231,166 @@ Obj string key get took:  6,946 ms
 
 ## 5. 클래스 의존성 주입
 
----
+- useSearch
 
 ```tsx
-import axios, { AxiosInstance } from "axios";
+const staleTime = 600000;
+const cacheTime = 900000;
 
-export abstract class HttpClient {
-  protected readonly instance: AxiosInstance;
-
-  constructor(protected readonly baseURL: string) {
-    this.instance = axios.create({
-      baseURL: this.baseURL
-    });
-  }
-}
-```
-
-```jsx
-export interface APIService {
-  fetch: <T>(endPoint: string) => Promise<AxiosResponse<T, any>>;
-}
-
-export class APIServiceImpl extends HttpClient implements APIService {
-  constructor(baseURL: string) {
-    super(baseURL);
-  }
-
-  fetch = <T>(endPoint: string) => {
-    console.info("calling api");
-    return this.instance.get < T > this.baseURL + endPoint;
-  };
-}
-```
-
-```tsx
-// SearhService.ts
-import { APIServiceImpl } from "@/lib/api/API";
-import { CacheService } from "./CacheService";
-
-interface SearchService<T> {
-  search(query: string): Promise<T>;
-}
-
-export class SearchServiceImpl<T> implements SearchService<T> {
-  private api;
-  private cache;
-
-  constructor(api: APIServiceImpl) {
-    this.api = api;
-    this.cache = new CacheService<string, T>();
-  }
-
-  async search(query: string) {
-    if (this.cache.hasCache(query))
-      return this.cache.getCache(query) || ([] as T);
-    const { data } = await this.api.fetch<T>(`sick?sickNm_like=${query}`);
-    this.cache.setCache(query, data);
-    return data;
-  }
-}
+const api = new APIServiceImpl("http://localhost:4000/");
+const cache = new CacheService<string, Sick[]>(staleTime, cacheTime);
+const searchService = new SearchServiceImpl<Sick[]>(api, cache);
 ```
 
 클래스 외부에서 객체를 생성하여 객체를 클래스 내부에 주입하고있습니다. 한 클래스가 변경이 될 경우 다른 클래스가 변경될 필요성이 적고 리팩토링, 테스트, 유연성과 확장성을 높이기 위해 클래스간 의존성 주입을 하도록 구현하였습니다.
 
 - HttpClient
+
+  ```tsx
+  import axios, { AxiosInstance } from "axios";
+
+  export abstract class HttpClient {
+    protected readonly instance: AxiosInstance;
+
+    constructor(protected readonly baseURL: string) {
+      this.instance = axios.create({
+        baseURL: this.baseURL
+      });
+    }
+  }
+  ```
+
   - HttpClient 클래스트는 abstract로 선언하였는데 다른곳에서 인스턴스로 사용되는 것을 방지하고 싶었습니다.
+
 - APIService
+
+  ```jsx
+  export interface APIService {
+    fetch: <T>(endPoint: string) => Promise<AxiosResponse<T, any>>;
+  }
+
+  export class APIServiceImpl extends HttpClient implements APIService {
+    constructor(baseURL: string) {
+      super(baseURL);
+    }
+
+    fetch = <T>(endPoint: string) => {
+      console.info("calling api");
+      return this.instance.get < T > this.baseURL + endPoint;
+    };
+  }
+  ```
+
   - HttpClient를 상속 받아서 HttpClient의 instance를 사용하고 http 요청을 하는 클래스입니다.
+
 - SearchService
+
+  ```tsx
+  import { APIServiceImpl } from "@/lib/api/API";
+  import { CacheService } from "./CacheService";
+
+  interface SearchService<T> {
+    search(query: string): Promise<T>;
+  }
+
+  export class SearchServiceImpl<T> implements SearchService<T> {
+    protected api;
+    private cache;
+
+    constructor(api: APIServiceImpl, cache: CacheService<string, T>) {
+      this.api = api;
+      this.cache = cache;
+    }
+
+    async fetchData(query: string): Promise<T> {
+      const { data } = await this.api.fetch<T>(`sick?sickNm_like=${query}`);
+      return data;
+    }
+
+    async search(query: string) {
+      if (this.cache.hasCache(query)) {
+        this.cache.cacheTimeOut(this.fetchData(query), query);
+        return this.cache.getCache(query) || ([] as T);
+      }
+      const { data } = await this.api.fetch<T>(`sick?sickNm_like=${query}`);
+
+      this.cache.setCache(query, data);
+      return data;
+    }
+  }
+  ```
+
   - 선언 시점이 아닌 생성 시점에 타입을 입력받아 다양한 타입을 지원해주고 생성된 인스턴스의 타입 범위를 줄이기 위해 타입 매개변수인 제네릭으로 타입입력을 받았습니다.
+  - search
+    - cache가 있으면(`hasCache`) cacheTimeOut 함수에서 staleTime과 cacheTime이 만료가 되었는지 판단을 하고 아니라면 데이터를 fetch 합니다.
+
+- CacheService
+
+  ```tsx
+  export class CacheService<K, V> {
+    private state;
+    private staleCacheTimeoutId?: NodeJS.Timeout | undefined;
+    private cacheTimeoutId?: NodeJS.Timeout | undefined;
+
+    constructor(
+      private readonly staleTime: number,
+      private readonly cacheTime: number
+    ) {
+      this.state = new Map<K, V>();
+    }
+
+    setCache(key: K, value: V) {
+      this.state.set(key, value);
+    }
+
+    getCache(key: K) {
+      return this.state.get(key);
+    }
+
+    hasCache(key: K) {
+      return this.state.has(key);
+    }
+
+    deleteCache(key: K) {
+      return this.state.delete(key);
+    }
+
+    cacheTimeOut(fetch: Promise<V>, key: K) {
+      if (this.staleCacheTimeoutId || this.cacheTimeoutId) {
+        return;
+      }
+
+      this.staleCacheTimeoutId = setTimeout(async () => {
+        const response: Promise<V> = fetch;
+
+        response.then((data) => {
+          this.setCache(key, data);
+        });
+      }, this.staleTime);
+
+      this.cacheTimeoutId = setTimeout(() => {
+        this.deleteCache(key);
+      }, this.cacheTime);
+    }
+  }
+  ```
+
+  - cache를 관리하는 클래스이고 Map 객체를 관리하는 로직이 작성되어 있습니다.
+
+  - cacheTimeout 함수에서 setTimeout 메소드를 사용하여 staleTime 시간과 cacheTime의 시간을 측정하고 staleTime이 지나게 되면 데이터를 다시 fetch 하고 cacheTime이 지나면 Map 객체에 저장되어있는 cache 데이터를 삭제하는 로직입니다.
+  - 서버에서 받아온 데이터의 expire를 설정하여 서버의 데이터가 상했다고 판단하면 서버의 데이터를 다시 fetch를 하고, cacheTime이 지나게 되면 cache에 있는 데이터를 삭제시켜 react query에서 가비지 콜렉터에서 cache된 데이터를 삭제하는것처럼 react query의 동작원리와 비슷하게 구현을 하였습니다.
+
+  - cacheTime과 staleTime을 외부에서 의존성 주입을 받아 의존성을 줄이고 내부 로직과 상관없이 변경을 할 수 있도록 유연성을 높였습니다.
+    useSearch.ts
+
+    ```
+    const staleTime = 600000;
+    const cacheTime = 900000;
+
+    const api = new APIServiceImpl("http://localhost:4000/");
+    const cache = new CacheService<string, Sick[]>(staleTime, cacheTime);
+    const searchService = new SearchServiceImpl<Sick[]>(api, cache);
+    ```
 
 # 문제 해결
 

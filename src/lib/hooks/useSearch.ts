@@ -6,8 +6,11 @@ import { Sick } from "@/lib/typings/db";
 
 export type StateType = "hasError" | "loading" | "hasValue";
 
+const staleTime = 600000;
+const cacheTime = 900000;
+
 const api = new APIServiceImpl("http://localhost:4000/");
-const cache = new CacheService<string, Sick[]>();
+const cache = new CacheService<string, Sick[]>(staleTime, cacheTime);
 const searchService = new SearchServiceImpl<Sick[]>(api, cache);
 
 export const useSearch = () => {
