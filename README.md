@@ -150,61 +150,62 @@ debounce(func, delay);
 
 ## 4. 데이터 캐싱 방법
 
+**CacheService.ts**
+
+```tsx
+export class CacheService<K, V> {
+  private state;
+  private staleCacheTimeoutId?: NodeJS.Timeout | undefined;
+  private cacheTimeoutId?: NodeJS.Timeout | undefined;
+
+  constructor(
+    private readonly staleTime: number,
+    private readonly cacheTime: number
+  ) {
+    this.state = new Map<K, V>();
+  }
+
+  setCache(key: K, value: V) {
+    this.state.set(key, value);
+  }
+
+  getCache(key: K) {
+    return this.state.get(key);
+  }
+
+  hasCache(key: K) {
+    return this.state.has(key);
+  }
+
+  deleteCache(key: K) {
+    return this.state.delete(key);
+  }
+
+  cacheTimeOut(fetch: Promise<V>, key: K) {
+    if (this.staleCacheTimeoutId || this.cacheTimeoutId) {
+      return;
+    }
+
+    this.staleCacheTimeoutId = setTimeout(async () => {
+      const response: Promise<V> = fetch;
+
+      response.then((data) => {
+        this.setCache(key, data);
+      });
+    }, this.staleTime);
+
+    this.cacheTimeoutId = setTimeout(() => {
+      this.deleteCache(key);
+    }, this.cacheTime);
+  }
+}
+```
+
 - Map instance를 가진 CacheService class를 구현해 Cache data를 관리했습니다.
-
-  ```jsx
-  // CacheService.ts
-  export class CacheService<K, V> {
-    private state;
-
-    constructor() {
-      this.state = new Map<K, V>();
-    }
-
-    setCache(key: K, value: V) {
-      this.state.set(key, value);
-    }
-
-    getCache(key: K) {
-      return this.state.get(key);
-    }
-
-    hasCache(key: K) {
-      return this.state.has(key);
-    }
-  }
-  ```
-
 - input의 입력값을 key값으로 정하여 Map에서 key값을 먼저 확인하고 key값이 없으면 데이터를 state에 저장하고 key값이 있으면 기존의 key값의 데이터를 불러오는 방식으로 캐싱을 적용하였습니다.
-
-  ```jsx
-  // SearhService.ts
-  import { APIServiceImpl } from "@/lib/api/API";
-  import { CacheService } from "./CacheService";
-
-  interface SearchService<T> {
-    search(query: string): Promise<T>;
-  }
-
-  export class SearchServiceImpl<T> implements SearchService<T> {
-    private api;
-    private cache;
-
-    constructor(api: APIServiceImpl) {
-      this.api = api;
-      this.cache = new CacheService<string, T>();
-    }
-
-    async search(query: string) {
-      if (this.cache.hasCache(query))
-        return this.cache.getCache(query) || ([] as T);
-      const { data } = await this.api.fetch<T>(`sick?sickNm_like=${query}`);
-      this.cache.setCache(query, data);
-      return data;
-    }
-  }
-  ```
-
+- cacheTimeout
+  - setTimeout 메소드를 사용하여 staleTime 시간과 cacheTime의 시간을 측정하고 staleTime이 지나게 되면 데이터를 다시 fetch 하고 cacheTime이 지나면 Map 객체에 저장되어있는 cache 데이터를 삭제하는 로직입니다.
+  - 서버에서 받아온 데이터의 expire를 설정하여 서버의 데이터가 상했다고 판단하면 서버의 데이터를 다시 fetch를 하고, cacheTime이 지나게 되면 cache에 있는 데이터를 삭제시켜 react query에서 가비지 콜렉터에서 cache된 데이터를 삭제하는것처럼 react query의 동작원리와 비슷하게 구현을 하였습니다.
 - 데이터 캐싱에 Object가 아닌 Map을 사용한 이유
   - Map은 키-값 쌍의 빈번한 추가 및 제거에서 Object보다 더 나은 성능을 보입니다.
   - 검색창의 입력값이 모두 쿼리키(string)이 될 수 있고, 검색값이 변경될 때마다 빈번하게 크기가 큰 검색 데이터가 데이터가 추가, 로드되기 때문에 Object보다 Map 자료구조형이 더 적합하다고 판단하여 Map객체에 캐시를 저장했습니다.
@@ -228,6 +229,48 @@ Obj string key get took:  6,946 ms
 ```
 
 - Cache 인터페이스 역시 사용할 수 있지만 exprerimental 한 기능이므로 구형 브라우저를 고려하여 사용하지 않았습니다. [https://developer.mozilla.org/ko/docs/Web/API/Cache](https://developer.mozilla.org/ko/docs/Web/API/Cache)
+
+<br/>
+
+**SearchService.ts**
+
+```jsx
+import { APIServiceImpl } from "@/lib/api/API";
+import { CacheService } from "./CacheService";
+
+interface SearchService<T> {
+  search(query: string): Promise<T>;
+}
+
+export class SearchServiceImpl<T> implements SearchService<T> {
+  protected api;
+  private cache;
+
+  constructor(api: APIServiceImpl, cache: CacheService<string, T>) {
+    this.api = api;
+    this.cache = cache;
+  }
+
+  async fetchData(query: string): Promise<T> {
+    const { data } = await this.api.fetch<T>(`sick?sickNm_like=${query}`);
+    return data;
+  }
+
+  async search(query: string) {
+    if (this.cache.hasCache(query)) {
+      this.cache.cacheTimeOut(this.fetchData(query), query);
+      return this.cache.getCache(query) || ([] as T);
+    }
+    const { data } = await this.api.fetch<T>(`sick?sickNm_like=${query}`);
+
+    this.cache.setCache(query, data);
+    return data;
+  }
+}
+```
+
+- search
+  - cache가 있으면(`hasCache`) cacheTimeOut 함수에서 staleTime과 cacheTime이 만료가 되었는지 판단을 하고 아니라면 데이터를 fetch 합니다.
 
 ## 5. 클래스 의존성 주입
 
@@ -260,7 +303,7 @@ const searchService = new SearchServiceImpl<Sick[]>(api, cache);
   }
   ```
 
-  - HttpClient 클래스트는 abstract로 선언하였는데 다른곳에서 인스턴스로 사용되는 것을 방지하고 싶었습니다.
+  - HttpClient 클래스를 abstract로 선언하여 다른곳에서 인스턴스로 사용되는 것을 방지하였습니다.
 
 - APIService
 
@@ -281,7 +324,7 @@ const searchService = new SearchServiceImpl<Sick[]>(api, cache);
   }
   ```
 
-  - HttpClient를 상속 받아서 HttpClient의 instance를 사용하고 http 요청을 하는 클래스입니다.
+  - HttpClient를 상속 받아서 HttpClient의 instance를 사용하고 http 요청을 합니다.
 
 - SearchService
 
@@ -302,27 +345,11 @@ const searchService = new SearchServiceImpl<Sick[]>(api, cache);
       this.cache = cache;
     }
 
-    async fetchData(query: string): Promise<T> {
-      const { data } = await this.api.fetch<T>(`sick?sickNm_like=${query}`);
-      return data;
-    }
-
-    async search(query: string) {
-      if (this.cache.hasCache(query)) {
-        this.cache.cacheTimeOut(this.fetchData(query), query);
-        return this.cache.getCache(query) || ([] as T);
-      }
-      const { data } = await this.api.fetch<T>(`sick?sickNm_like=${query}`);
-
-      this.cache.setCache(query, data);
-      return data;
-    }
+    ...
   }
   ```
 
   - 선언 시점이 아닌 생성 시점에 타입을 입력받아 다양한 타입을 지원해주고 생성된 인스턴스의 타입 범위를 줄이기 위해 타입 매개변수인 제네릭으로 타입입력을 받았습니다.
-  - search
-    - cache가 있으면(`hasCache`) cacheTimeOut 함수에서 staleTime과 cacheTime이 만료가 되었는지 판단을 하고 아니라면 데이터를 fetch 합니다.
 
 - CacheService
 
@@ -339,58 +366,11 @@ const searchService = new SearchServiceImpl<Sick[]>(api, cache);
       this.state = new Map<K, V>();
     }
 
-    setCache(key: K, value: V) {
-      this.state.set(key, value);
-    }
-
-    getCache(key: K) {
-      return this.state.get(key);
-    }
-
-    hasCache(key: K) {
-      return this.state.has(key);
-    }
-
-    deleteCache(key: K) {
-      return this.state.delete(key);
-    }
-
-    cacheTimeOut(fetch: Promise<V>, key: K) {
-      if (this.staleCacheTimeoutId || this.cacheTimeoutId) {
-        return;
-      }
-
-      this.staleCacheTimeoutId = setTimeout(async () => {
-        const response: Promise<V> = fetch;
-
-        response.then((data) => {
-          this.setCache(key, data);
-        });
-      }, this.staleTime);
-
-      this.cacheTimeoutId = setTimeout(() => {
-        this.deleteCache(key);
-      }, this.cacheTime);
-    }
+  	...
   }
   ```
 
-  - cache를 관리하는 클래스이고 Map 객체를 관리하는 로직이 작성되어 있습니다.
-
-  - cacheTimeout 함수에서 setTimeout 메소드를 사용하여 staleTime 시간과 cacheTime의 시간을 측정하고 staleTime이 지나게 되면 데이터를 다시 fetch 하고 cacheTime이 지나면 Map 객체에 저장되어있는 cache 데이터를 삭제하는 로직입니다.
-  - 서버에서 받아온 데이터의 expire를 설정하여 서버의 데이터가 상했다고 판단하면 서버의 데이터를 다시 fetch를 하고, cacheTime이 지나게 되면 cache에 있는 데이터를 삭제시켜 react query에서 가비지 콜렉터에서 cache된 데이터를 삭제하는것처럼 react query의 동작원리와 비슷하게 구현을 하였습니다.
-
-  - cacheTime과 staleTime을 외부에서 의존성 주입을 받아 의존성을 줄이고 내부 로직과 상관없이 변경을 할 수 있도록 유연성을 높였습니다.
-    useSearch.ts
-
-    ```
-    const staleTime = 600000;
-    const cacheTime = 900000;
-
-    const api = new APIServiceImpl("http://localhost:4000/");
-    const cache = new CacheService<string, Sick[]>(staleTime, cacheTime);
-    const searchService = new SearchServiceImpl<Sick[]>(api, cache);
-    ```
+  - cacheTime과 staleTime을 외부 객체에서 주입 받아 의존성을 줄이고 유연성을 높였습니다.
 
 # 문제 해결
 
